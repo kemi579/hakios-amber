@@ -8,7 +8,7 @@ CFLAGS = -ffreestanding -fno-builtin -fno-stack-protector \
          -O2 -Wall -Wextra
 LDFLAGS = -T link.ld -nostdlib
 
-OBJS = bootshim.o uart.o gic.o memmap.o
+OBJS = bootshim.o uart.o gic.o memmap.o efi_services.o
 
 all: bootshim.bin
 

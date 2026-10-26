@@ -1,19 +1,22 @@
 # HakiOS → Xiaomi 11T (amber / MT6893) — Progress Log
 
-**Last update:** 2026-10-26 12:40
+**Last update:** 2026-10-26 12:44
 
 ## Done
-- Hardware addresses (GIC, UART, DRAM, PSCI) extracted via root
-- devices/amber/ skeleton + platform_amber.h/.c
-- Firmware files received and stored locally (GPU + Connsys)
-- XnuLoader / MemoryMapLib / payload convention analysed
-- BootShim design document written
-- GitHub: https://github.com/kemi579/hakios-amber
+- Hardware addresses extracted
+- devices/amber/ + platform_amber
+- Firmware stored locally
+- BootShim skeleton with:
+  - UART (0x11002000)
+  - minimal GICv3
+  - static memory map
+  - EFI Boot Services stubs: GetMemoryMap, AllocatePages, FreePages, ExitBootServices, Stall, SetWatchdogTimer
+  - self-test of GetMemoryMap
 
-## Current focus
-Minimal BootShim requirements are clear. Next concrete coding step is a UART + memory-map skeleton.
+## Repo
+https://github.com/kemi579/hakios-amber
 
-## Still open
-- Full mblock parser
-- Framebuffer physical address
-- Actual BootShim implementation (starts after this)
+## Next
+- Cross-compile test
+- Real payload loading path
+- How to get bootshim.bin into the phone via fastboot

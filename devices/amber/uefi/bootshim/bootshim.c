@@ -1,13 +1,12 @@
 /*
  * Minimal BootShim for Xiaomi 11T (amber / MT6893)
- *
- * Current goal: bring up UART + GIC, print banner + memory map, then halt.
- * Later: real EFI_SYSTEM_TABLE + Boot Services and jump to an .efi.
+ * Includes skeleton EFI System Table + Boot Services.
  */
 
 #include "uart.h"
 #include "gic.h"
 #include "memmap.h"
+#include "efi.h"
 
 void bootshim_main(void)
 {
@@ -17,8 +16,19 @@ void bootshim_main(void)
 
     gic_init();
     memmap_dump();
+    efi_init();
 
-    uart_puts("[bootshim] halting\n");
+    EFI_SYSTEM_TABLE *st = efi_get_system_table();
+    UINTN map_size = 0, map_key, desc_size;
+    UINT32 desc_ver;
+    EFI_STATUS s = st->BootServices->GetMemoryMap(&map_size, NULL, &map_key, &desc_size, &desc_ver);
+    uart_puts("[test] GetMemoryMap size query -> ");
+    uart_hex64(s);
+    uart_puts(" need ");
+    uart_hex64(map_size);
+    uart_puts("\n");
+
+    uart_puts("[bootshim] services alive, halting\n");
     for (;;)
         __asm__ volatile("wfe");
 }
