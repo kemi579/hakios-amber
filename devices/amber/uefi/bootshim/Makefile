@@ -1,16 +1,23 @@
-CROSS ?= aarch64-none-elf-
-CC    = $(CROSS)gcc
-AS    = $(CROSS)gcc
-LD    = $(CROSS)ld
+CROSS   ?= aarch64-linux-gnu-
+CC      = $(CROSS)gcc
+AS      = $(CROSS)gcc
+LD      = $(CROSS)ld
 OBJCOPY = $(CROSS)objcopy
 
-CFLAGS = -ffreestanding -fno-builtin -fno-stack-protector \
-         -mgeneral-regs-only -mlittle-endian -mcpu=cortex-a78 \
-         -O2 -Wall -Wextra
+CFLAGS  = -ffreestanding -fno-builtin -fno-stack-protector \
+          -mgeneral-regs-only -mlittle-endian -mcpu=cortex-a78 \
+          -O2 -Wall -Wextra
 ASFLAGS = $(CFLAGS)
 LDFLAGS = -T link.ld -nostdlib
 
+# Full build (default)
 OBJS = start.o bootshim.o uart.o gic.o memmap.o efi_services.o
+
+# Minimal test: only start.S (writes magic + infinite loop)
+# make MINIMAL=1
+ifneq ($(MINIMAL),)
+OBJS = start.o
+endif
 
 all: bootshim.bin
 
@@ -25,7 +32,7 @@ bootshim.elf: $(OBJS) link.ld
 
 bootshim.bin: bootshim.elf
 	$(OBJCOPY) -O binary $< $@
-	@echo "Built $@"
+	@echo "Built $@ ($(shell wc -c < $@) bytes)"
 
 clean:
 	rm -f *.o *.elf *.bin

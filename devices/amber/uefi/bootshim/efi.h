@@ -1,6 +1,10 @@
 #pragma once
 #include <stdint.h>
 
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
 typedef uint64_t  EFI_STATUS;
 typedef uint64_t  EFI_PHYSICAL_ADDRESS;
 typedef uint64_t  EFI_VIRTUAL_ADDRESS;

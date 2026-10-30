@@ -8,6 +8,11 @@
 #include "memmap.h"
 #include "efi.h"
 
+/* Provide NULL when freestanding */
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
 void bootshim_main(void)
 {
     uart_init();
