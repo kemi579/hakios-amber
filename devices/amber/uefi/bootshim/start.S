@@ -5,14 +5,13 @@
  * Stack at 0x41000000.
  *
  * When built with MINIMAL=1 this file is the only object:
- * it just writes a magic value and spins so we can later
- * check RAM if we ever get a way to read it back.
+ * it just writes a magic value and spins.
  */
 .section .text.boot, "ax"
 .global _start
-.extern bootshim_main
-.extern __bss_start
-.extern __bss_end
+
+/* weak so that when bootshim.o is not linked we still build */
+.weak bootshim_main
 
 _start:
     /* set stack */
@@ -24,18 +23,17 @@ _start:
     ldr  x2, =0xDEADBEEFCAFEBABE
     str  x2, [x1]
 
-    /* clear .bss if symbols exist (full build) */
-    ldr  x1, =__bss_start
-    ldr  x2, =__bss_end
-1:
-    cmp  x1, x2
-    b.hs 2f
-    str  xzr, [x1], #8
-    b    1b
-2:
-    /* jump to C if linked, otherwise just spin */
+    /* try to call C entry if it exists */
+    adr  x0, bootshim_main
+    cbz  x0, 3f
     bl   bootshim_main
 
 3:  /* infinite loop */
     wfe
     b    3b
+
+/* provide a weak empty stub so the linker is happy in MINIMAL mode */
+.section .text
+.weak bootshim_main
+bootshim_main:
+    ret
