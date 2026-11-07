@@ -8,7 +8,7 @@
  *   3. Copy stock Android Image from CHAIN_OFFSET down over ourselves
  *   4. Jump into it exactly as LK would have
  *
- * tools/chainboot.py fills image_size / res2 / res3 in the header.
+ * tools/chainboot.py fills image_size / res2 in the header.
  */
 .global _start
 .section .text.boot
@@ -61,12 +61,12 @@ primary_entry:
      * chainboot.py places the uncompressed Image at CHAIN_OFFSET (0x40000)
      * and puts its length into res2 (offset 0x28 of the header).
      */
-    adr     x0, _start             /* our base */
-    ldr     x1, [x0, #0x28]        /* res2 = Android Image length */
+    adr     x9, _start             /* our base = 0x40080000 */
+    ldr     x1, [x9, #0x28]        /* res2 = Android Image length */
     cbz     x1, halt               /* safety: no image -> hang */
 
-    add     x2, x0, #0x40000       /* src = CHAIN_OFFSET */
-    mov     x3, x0                 /* dst = 0x40080000 (ourselves) */
+    add     x2, x9, #0x40000       /* src = CHAIN_OFFSET */
+    mov     x3, x9                 /* dst = 0x40080000 */
     mov     x4, x1                 /* len */
 
     /* Copy Image down over us (simple 8-byte loop) */
@@ -81,13 +81,12 @@ primary_entry:
     isb
 
     /* Jump to the start of the stock Image (now at 0x40080000) */
-    mov     x0, xzr                /* x0 = DTB (we don't have one, stock may ignore) */
+    mov     x0, xzr                /* x0 = DTB pointer (stock may ignore) */
     mov     x1, xzr
     mov     x2, xzr
     mov     x3, xzr
-    br      x0                     /* should be 0x40080000 after copy, but we just overwrote */
+    br      x9                     /* jump to 0x40080000 */
 
-    /* Fallback if something went wrong */
 halt:
     wfe
     b       halt
